@@ -1,0 +1,86 @@
+<div class="accordion" id="accordionExample">
+    <div class="card">
+        <div class="card-header" id="headingTwo">
+            <h2 class="mb-0">
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseTwo"
+                    aria-expanded="false" aria-controls="collapseTwo">
+                    <h4>Logging Events</h4>
+                </button>
+            </h2>
+        </div>
+        <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionExample">
+            <div class="card-body">
+                <ul>
+                    {% for dag_logging in recent_logging %}
+                        <li>{{dag_logging.start_time|date:"m-d-y h:i A"}}
+                            <ul>
+                                {% for event_logging in dag_logging.events.all %}
+                                <li>
+                                    <small>
+                                        {{event_logging.log_metric}} : {{event_logging.log_value}} |
+                                        {{event_logging.created_on|date:"m-d-y h:i A"}}
+                                    </small>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" id="headingOne">
+            <h2 class="mb-0">
+                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseOne"
+                    aria-expanded="true" aria-controls="collapseOne">
+                    <h4>Dependencies</h4>
+                </button>
+            </h2>
+        </div>
+        <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+            <div class="card-body">
+                <ul>
+                    {% for dependency in object.dependencies.all %}
+                        <li>
+                            {% if dependency.sub_module %}
+                                <a href="{{dependency.get_update_url}}">{{dependency.package.package_display}}</a>
+                                <a href="{{dependency.get_delete_url}}"><i class="fas fa-trash-alt" style="color:crimson"
+                                        title="Delete DAG Item"></i></a>
+                            {% else %}
+                                {{dependency.package.package_display}}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" id="headingThree">
+            <h2 class="mb-0">
+                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree"
+                    aria-expanded="false" aria-controls="collapseThree">
+                    <h4>Version History</h4>
+                </button>
+            </h2>
+        </div>
+        <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+            <div class="card-body">
+                <ul>
+                    {% for version in object.version_history.all %}
+                        <li>
+                           {{ version.version_datetime }} - #{{ version.version_number }}
+                           <a href="{{version.get_absolute_url}}">
+                               <i class="fas fa-binoculars" title="View version" style="color:green"></i>
+                            </a>
+                           <a href="{% url 'dag:dagitem_version_history_export' version.pk %}">
+                               <i class="fas fa-download" title="Export Version" style="color:green"></i>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

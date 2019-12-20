@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+{% load markdown_extras %}
+{% block content %}
+<div class="row">
+	<div class="col-7">
+		<h4>
+			{{ object.dag_name }}
+			<a href="{{object.get_delete_url}}">
+                <i class="fas fa-trash-alt" style="color:crimson" title="Delete Task"></i>
+            </a>
+            {% if object.current_process.is_active %}
+                <i class="fas fa-check" style="color:darkgreen"></i>
+            {% else %}
+                <i class="fas fa-fire" style="color:crimson"></i>
+            {% endif %}
+		</h4>
+		<p>
+			<a href="{{object.get_update_url}}">Update DAG</a> 
+			| <a href="{% url 'dag:dagitem_script_create' %}">Add Script Item</a> 
+			| <a href="{% url 'dag:dagitem_path_create' %}">Add Path Item</a>
+			| <a href="{{object.current_process.get_absolute_url}}">Status</a>
+		</p>
+		{% if object.get_task.last_error %}
+			<h4 style="color:crimson">Last Error</h4>
+			<p>
+				{{object.get_task.last_error|safe}}
+			</p>
+		{% endif %}
+		<ul>
+		{% for dag_item  in object.dag_items.all %}
+			<li><a href="{{dag_item.get_absolute_url}}">{{dag_item.job_name}}</a></li>
+		{% endfor %}
+		</ul>
+
+	</div>
+	<div class="col-5">
+		{% if current_tasks %}
+			{% for current_task in current_tasks %}
+				<strong>Next Run Time at : {{current_task.run_at|date:"m-d-y h:i A"}}</strong>
+			{% endfor %}
+		{% endif %}
+		<hr>
+		<h4>Completed Tasks</h4>
+		<ul>
+			{% for completed_task in object.get_complete_tasks %}
+				<li>
+					<small>
+						Started at : {{completed_task.locked_at|date:"m-d-y h:i A"}} | {{completed_task.attempts}} attempts
+					</small>
+				</li>
+			{% endfor %}
+		</ul>
+		<hr>
+		<h4>Logging Events</h4>
+		<ul>
+		{% for dag_logging in recent_logging %}
+			<li>
+				<strong>{{dag_logging.dag_item.job_name}}</strong>({{dag_logging.run_time}})
+				<br>
+				{{dag_logging.start_time|date:"m-d-y h:i:s A"}}
+				<ul>
+				{% for event_logging in dag_logging.events.all %}
+					<li>
+						<small>
+							{{event_logging.log_metric}} :  {{event_logging.log_value}} | {{event_logging.created_on|date:"m-d-y h:i A"}}
+						</small>
+					</li>
+				{% endfor %}
+				</ul>
+			</li>
+		{% endfor %}
+		</ul>
+	</div>
+</div>
+{% endblock %}

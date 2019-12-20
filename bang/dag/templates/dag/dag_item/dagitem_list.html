@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+{% load tz %}
+{% block head_extra %}
+<style>
+	fa, .fas {
+		font-weight: 200;
+		font-size: 125%;
+	}
+	.fa-clipboard {
+			text-shadow: -7px 8px 2px grey,;
+	}
+</style>
+{% endblock %}
+{% block content %}
+<p>
+	<a class="btn btn-outline-primary" href="{% url 'bang_tasks:job_create' %}">New Job</a>
+</p>
+<br>
+<table class="table table-hover table-sm" id="dataTable">
+	<tr>
+		<td scope="col" class="text-center">Successful</td>
+		<td scope="col">Project</td>
+		<td scope="col">Job Name</td>
+		<td scope="col">Task Name</td>	
+		<td scope="col">Next Run</td>
+		<td scope="col">Last User</td>
+	</tr>
+	{% for object in object_list %}
+		<tr>
+			<td class="text-center">
+				{% if object.has_error %}
+					<i class="fa fa-times" style="color:Crimson;" title="Failure"></i>
+				{% else %}
+					<i class="fa fa-check" style="color:green;" title="Successful"></i>
+				{% endif %}
+			</td>
+            <td>
+                {% if object.project %}
+                    {{ object.project.project_name }}
+                {% endif %}
+            </td>
+			<td><a href="{{object.get_absolute_url}}">{{ object.job_name }}</td>
+			<td>{{ object.task_name }}</td>
+			<td>{{ object.run_at|date:"m-d-y h:i A" }}</td>
+			<td>
+				{% if object.job_owner %}
+					{{ object.job_owner.get_full_name }}
+				{% endif %}
+			</td>
+		</tr>
+	{% endfor %}
+	<!-- Pagination items -->
+	{% if is_paginated %}
+		<ul class="pagination">
+			{% if page_obj.has_previous %}
+				<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&laquo;</a></li>
+			{% else %}
+				<li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+			{% endif %}
+			{% for i in paginator.page_range %}
+				{% if page_obj.number == i %}
+					<li class="page-item active"><span class="page-link" >{{ i }} <span class="sr-only">(current)</span></span></li>
+				{% elif page_obj.number|add:'-8' < i and i < page_obj.number|add:'8' %}
+					<li><a class="page-link" href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a></li>
+				{% endif %}
+			{% endfor %}
+			{% if page_obj.has_next %}
+				<li><a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&raquo;</a></li>
+			{% else %}
+				<li class="page-item disabled"><span>&raquo;</span></li>
+			{% endif %}
+		</ul>
+	{% endif %}
+</table>
+{% endblock %}

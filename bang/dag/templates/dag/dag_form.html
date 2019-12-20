@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+{% block head_extra %}
+  {{ form.media }}
+	<style>
+		.wmd-panel {
+			margin-left: 0%;
+			margin-right: 0%;
+			width: 100%;
+			min-width: 500px;
+		}
+		.wmd-input {
+		    height: 300px;
+		    width: 100%;
+		    background-color: #dcdcdc00;
+		    border: 1px solid DarkGray;
+		}
+		.wmd-preview {
+		    background-color: #f8f9fa;
+		}
+	</style>
+{% endblock head_extra %}
+{% block content %}
+<form action="" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{form.as_p}}
+<button class="btn btn-outline-primary" type="submit">Submit</button>
+</form>
+{% endblock %}
+

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="row">
+	<div class="col-7">
+		<h4>
+			{{ object.job_name }}
+			<a href="{{object.get_delete_url}}">
+                <i class="fas fa-trash-alt" style="color:crimson" title="Delete DAG Item"></i>
+            </a>
+		</h4>
+		<p>
+			<a href="{{object.dag.get_absolute_url}}" title="Parent DAG">{{object.dag.dag_name}}</a> 
+			| <a href="{{object.get_update_url}}">Update Item</a> 
+			| <a href="{{object.get_dependency_url}}">Update Dependencies</a>
+			<!--| <a href="{% url 'dag:dagasset_create' %}">Add Asset</a>-->
+			| <a href="{% url 'dag:dagitem_dependency_create' %}?dag_item={{ object.pk }}">Add Dependency</a>
+		</p>
+		{% if object.last_error %}
+			<h4 style="color:crimson">Last Error</h4>
+			<p>
+				{{object.last_error|safe}}
+			</p>
+		{% endif %}		
+		<p>
+			<h4>Script</h4>
+			<pre style="white-space: pre-wrap;">
+				<code class="codeblock">
+					{{object.get_script}}
+				</code>
+			</pre>
+		</p>
+    </div>
+    <div class="col-5">
+        {% include 'dag/dag_item/dagitem_sidebar.html' %}
+    </div>
+</div>
+{% endblock %}

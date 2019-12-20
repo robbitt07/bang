@@ -1,0 +1,4 @@
+<option value="">---------</option>
+{% for dag_item in dag_items %}
+<option value="{{ dag_item.pk }}">{{ dag_item.job_name }} ({% if dag_item.parent %} {{ dag_item.parent.job_name }} {% endif %})</option>
+{% endfor %}

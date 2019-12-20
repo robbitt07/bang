@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+{% load strip_string_markdown %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <p>
+            <a href="{{object.dag_item.get_absolute_url}}">
+                Back to DAG Item
+            </a>
+        </p>
+        <h4>
+            {{ object.dag_item }}
+        </h4>
+        <p>
+            <a href="{% url 'dag:dagitem_version_history_export' object.pk %}">Export Version</a>
+        </p>
+        <!-- <pre style="white-space: pre-wrap;"> -->
+        <!-- <pre> -->
+            <!-- <code class="codeblock"> -->
+                {% for diff_line in object.get_script_diff_list %}
+                    <div style="color:{{ diff_line.color }}">{{ diff_line.text|strip_string_markdown }}</div>
+                {% endfor %}
+            <!-- </code> -->
+        <!-- </pre> -->
+    </div>
+</div>
+{% endblock %}

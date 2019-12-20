@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+{% block head_extra %}
+	<style>
+    .form-control-inline {
+        min-width: 0;
+        width: auto;
+        display: inline;
+    }
+	</style>
+{% endblock head_extra %}
+{% block content %}
+<h4>Package Options</h4>
+  <form class="fullsize" role="form" action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <ul>
+    {% for package in package_list %}
+      <li>
+        <input type="checkbox" name="pkg_{{package.pk}}" id="{{package.import_name}}" {% if package.is_imported %} checked {% endif %}> 
+        {% if package.suggested %}
+          <strong>
+            {{package.import_name}}
+          </strong>
+        {% else %}
+            {{package.import_name}}
+        {% endif %}
+      </li>
+    {% endfor %}
+    <button type="submit" class="btn btn-outline-primary">Submit</button>
+  </form>
+  <br>
+{% endblock %}

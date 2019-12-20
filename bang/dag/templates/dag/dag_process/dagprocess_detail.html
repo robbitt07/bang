@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load static %}
+{% block head_extra %}
+    <style> /* set the CSS */
+        .cpu-line {
+            fill: none;
+            stroke: rgb(189, 127, 34);
+            stroke-width: 2px;
+        }
+        .memory-line {
+            fill: none;
+            stroke: steelblue;
+            stroke-width: 2px;
+        }
+        text.x.label {
+            font-size: 10px;
+        }
+        text.y.label {
+            font-size: 10px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+<div class="row">
+	<div class="col-7">
+        <a href="{{object.get_dag_absolute_url}}">DAG</a> | <a href="{% url 'dag:dag_process_list' %}">DAG Process List</a>
+        <br>
+        <h4>Memory Consumption Historical</h4>
+        <div id="plot"></div>
+	</div>
+</div>
+{% endblock %}
+{% block footer_extra %}
+<!-- load the d3.js library -->    	
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+    // set the dimensions and margins of the graph
+    var margin = {top: 20, right: 20, bottom: 85, left: 50},
+        width = 600 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom;
+
+    // parse the date / time
+    var parseTime = d3.utcParse("%Y-%m-%dT%H:%M:%S");
+
+    // set the ranges
+    var x = d3.scaleTime().range([0, width]);
+    var y = d3.scaleLinear().range([height, 0]);
+
+    // define the line
+    var memoryline = d3.line()
+        .x(function(d) { return x(d.observed_time); })
+        .y(function(d) { return y(d.memory_consumption); });
+
+    var cpuline = d3.line()
+        .x(function(d) { return x(d.observed_time); })
+        .y(function(d) { return y(d.cpu_consumption); });
+
+
+    // append the svg obgect to the body of the page
+    // appends a 'group' element to 'svg'
+    // moves the 'group' element to the top left margin
+    var svg = d3.select("#plot").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+    d3.json("http://127.0.0.1:8000/dag/api/v1/process/list/?dagprocess={{object.pk}}", function(error, data) {
+        if (error) throw error;
+
+        // format the data
+        data.forEach(function(d) {
+            d.observed_time = parseTime(d.observed_time);
+            d.memory_consumption = +d.memory_consumption;
+            d.cpu_consumption = +d.cpu_consumption;
+        });
+
+        // find the max of the evening data
+        var cpuMax = d3.max(data, d => d.memory_consumption);
+        var memoryMax = d3.max(data, d => d.cpu_consumption);
+        var yMax = d3.max([cpuMax, memoryMax])
+        
+        // Scale the range of the data
+        x.domain(d3.extent(data, function(d) { return d.observed_time; }));
+        y.domain([0, yMax]);
+
+        // Add the memoryline path.
+        svg.append("path")
+            .data([data])
+            .attr("class", "memory-line")
+            .attr("d", memoryline);
+
+        svg.append("path")
+            .data([data])
+            .attr("class", "cpu-line")
+            .attr("d", cpuline);
+
+        // Add the X Axis
+        svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x)
+                .tickFormat(d3.timeFormat("%b-%d %H:%M")))
+            .selectAll("text")	
+                .style("text-anchor", "end")
+                .attr("dx", "-.8em")
+                .attr("dy", ".15em")
+                .attr("transform", "rotate(-45)");
+
+        // Add the Y Axis
+        svg.append("g")
+            .call(d3.axisLeft(y));
+
+        // Add the X Label
+        svg.append("text")
+            .attr("class", "x label")
+            .attr("text-anchor", "end")
+            .attr("x", width)
+            .attr("y", height - 6)
+            .text("Date Time");
+
+        // Add the Y Axis
+        svg.append("text")
+            .attr("class", "y label")
+            .attr("text-anchor", "end")
+            .attr("y", 6)
+            .attr("dy", ".75em")
+            .attr("transform", "rotate(-90)")
+            .text("consumption");            
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block head_extra %}
+{{ form.media }}
+<style>
+	.wmd-panel {
+		margin-left: 0%;
+		margin-right: 0%;
+		width: 100%;
+		min-width: 500px;
+	}
+
+	.wmd-input {
+		height: 500px;
+		width: 100%;
+		background-color: #dcdcdc00;
+		border: 1px solid DarkGray;
+	}
+
+	.wmd-preview {
+		background-color: #f8f9fa;
+	}
+</style>
+{% endblock head_extra %}
+{% block content %}
+<h4>Testing</h4>
+<form action="" method="post" enctype="multipart/form-data" id="dagItemForm">
+	{% csrf_token %}
+	{{ form.item_type|as_crispy_field }}
+	<div class="form-row">
+		<div class="form-group col-md-6 mb-0">
+			{{ form.item_type|as_crispy_field }}
+		</div>
+	</div>
+	<div class="form-row">
+		<div class="form-group col-md-6 mb-0">
+			{{ form.dag|as_crispy_field }}
+		</div>
+		<div class="form-group col-md-6 mb-0">
+			{{ form.parent|as_crispy_field }}
+		</div>
+	</div>
+	<div class="form-row">
+		<div class="form-group col-md-6 mb-0">
+			{{ form.job_name|as_crispy_field }}
+		</div>
+		<div class="form-group col-md-6 mb-0">
+			{{ form.job_owner|as_crispy_field }}
+		</div>
+	</div>
+	<div class="form-row">
+		<div class="form-group col-md-12 mb-0">
+			{% if form.job_script.errors %}
+				{% for error in form.job_script.errors %}
+		            <div class="invalid-feedback">
+	              		{{ error }}
+		            </div>
+	          	{% endfor %}
+	        {% endif %}
+			{{ form.job_script }}
+		</div>
+	</div>
+	<br>
+	<button class="btn btn-outline-primary" type="submit">Submit</button>
+</form>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+    $("#id_dag").change(function () {
+        var url = '/dag/dagitem/parent_options/'
+        var dagId = $(this).val();
+
+        $.ajax({
+            url: url,
+            data: {
+                'pk': dagId
+            },
+            success: function (data) {
+                $("#id_parent").html(data);
+            },
+            error : function(error){
+                console.log("error", error);
+            }
+        });
+    });
+</script>
+{% endblock %}
