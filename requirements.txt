@@ -3,7 +3,7 @@ django-background-tasks==1.2.0
 django-compat==1.0.15
 django-crispy-forms==1.7.2
 django-pagedown==1.0.6
-djangorestframework==3.9.1
+djangorestframework==3.11.2
 Markdown==3.1.1
 psutil==5.6.6
 python-decouple==3.1
