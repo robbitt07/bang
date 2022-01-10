@@ -1,0 +1,7 @@
+version: '3'
+services:
+  bang:
+    build: 
+      context: .
+    ports: 
+      - "8000:8000"
